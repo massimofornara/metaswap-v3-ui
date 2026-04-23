@@ -1,0 +1,4 @@
+export const ROUTER_ADDRESS = "0x53AA5628360d4c7003ee7Cb679C05b950D192522";
+export const FACTORY_ADDRESS = "0x53AA5628360d4c7003ee7Cb679C05b950D192522";
+
+export const CHAIN_ID = 56; // 56 mainnet, 97 testnet
