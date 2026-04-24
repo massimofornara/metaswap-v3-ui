@@ -150,16 +150,28 @@ body {
   );
   pointer-events: none;
 }
+   /* ------------------------------
    HERO BACKGROUND EFFECT
---------------------------------*/
-    rgba(99, 102, 241, 0.25),
+------------------------------*/
 .hero-bg {
   position: relative;
+  z-index: -1;
+  background: radial-gradient(
     circle at top,
+    rgba(99, 102, 241, 0.25),
+    transparent
+  );
 }
 
 .hero-bg::before {
   content: "";
+  position: absolute;
   inset: 0;
   background: radial-gradient(
+    circle at top,
+    rgba(99, 102, 241, 0.15),
+    transparent
+  );
+  pointer-events: none;
+}
 
