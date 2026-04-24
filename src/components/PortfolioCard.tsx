@@ -1,59 +1,75 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getTokenBalance, getProvider } from "@/lib/web3";
-
-const TOKENS = [
-  { symbol: "NENO", address: "0xeF3F5C1892A8d7A3304E4A15959E124402d69974", decimals: 18 },
-  { symbol: "GHOST", address: "0x66f2ee37e3ee54ba399e25cB6429A8a42B2b7a8f", decimals: 18 },
-  { symbol: "USDT", address: "0x55d398326f99059fF775485246999027B3197955", decimals: 18 }
-];
+import { useAccount } from "wagmi";
+import { useLPBalance } from "@/hooks/useLPBalance";
+import { CONTRACTS } from "@/lib/contracts";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 export default function PortfolioCard() {
-  const [account, setAccount] = useState<string | null>(null);
-  const [balances, setBalances] = useState<Record<string, number>>({});
-  const [status, setStatus] = useState("");
+  const { isConnected, address } = useAccount();
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const provider = await getProvider();
-        const signer = await provider.getSigner();
-        const addr = await signer.getAddress();
-        setAccount(addr);
+  const lpBalance = useLPBalance(
+    CONTRACTS.pools.ETH_USDT,
+    address ?? "0x0000000000000000000000000000000000000000"
+  );
 
-        const result: Record<string, number> = {};
-        for (const t of TOKENS) {
-          const bal = await getTokenBalance(t.address, addr, t.decimals);
-          result[t.symbol] = bal;
-        }
-        setBalances(result);
-      } catch (e: any) {
-        setStatus("Errore: " + e.message);
+  async function addLPToMetaMask() {
+    try {
+      if (!window.ethereum) {
+        notifyError("MetaMask not detected");
+        return;
       }
-    })();
-  }, []);
+
+      await window.ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: CONTRACTS.pools.ETH_USDT,
+            symbol: "MSLP",
+            decimals: 18,
+          },
+        },
+      });
+
+      notifySuccess("LP Token added to MetaMask");
+    } catch {
+      notifyError("Failed to add LP token");
+    }
+  }
 
   return (
-    <div className="card">
-      <h2 className="card-title">Portfolio</h2>
-      {account && (
-        <p className="text-xs text-slate-400 mb-2">
-          Account: {account.slice(0, 6)}...{account.slice(-4)}
+    <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
+      <h2 className="text-2xl font-bold mb-4">Portfolio</h2>
+
+      {!isConnected ? (
+        <p className="text-gray-400">
+          Connect your wallet to view your portfolio.
         </p>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <p className="text-gray-300 text-sm">Wallet</p>
+            <p className="font-mono text-blue-400 text-xs break-all">
+              {address}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-gray-300 text-sm">LP Balance (ETH/USDT)</p>
+            <p className="text-xl font-bold">
+              {Number(lpBalance) / 1e18} MSLP
+            </p>
+          </div>
+
+          <button
+            onClick={addLPToMetaMask}
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold"
+          >
+            Add LP Token to MetaMask
+          </button>
+        </div>
       )}
-      {Object.keys(balances).length === 0 && !status && (
-        <p className="status">Caricamento...</p>
-      )}
-      {status && <p className="status">{status}</p>}
-      <ul className="mt-2 space-y-1 text-sm">
-        {TOKENS.map((t) => (
-          <li key={t.symbol} className="flex justify-between">
-            <span>{t.symbol}</span>
-            <span>{balances[t.symbol] ?? 0}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

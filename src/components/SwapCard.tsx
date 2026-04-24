@@ -1,90 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import {
-  swapExactTokensForTokens,
-  approveToken,
-  checkAllowance
-} from "@/lib/web3";
-import { parseUnits } from "ethers";
+import { useAccount } from "wagmi";
+import { useSwap } from "@/hooks/useSwap";
+import { CONTRACTS } from "@/lib/contracts";
+import { notifyError } from "@/lib/notify";
 
 export default function SwapCard() {
-  const [tokenIn, setTokenIn] = useState("");
-  const [tokenOut, setTokenOut] = useState("");
-  const [amountIn, setAmountIn] = useState("");
-  const [decimalsIn, setDecimalsIn] = useState("18");
-  const [needsApproval, setNeedsApproval] = useState(false);
-  const [status, setStatus] = useState("");
+  const { isConnected } = useAccount();
+  const { swap } = useSwap();
 
-  async function check() {
-    try {
-      if (!window.ethereum) return;
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
-      const account = accounts[0];
-      const amountWei = parseUnits(amountIn || "0", Number(decimalsIn));
-      const approved = await checkAllowance(tokenIn, account, amountWei);
-      setNeedsApproval(!approved);
-      setStatus(approved ? "Già approvato" : "Serve approvazione");
-    } catch {
-      setStatus("Errore nel check");
-    }
-  }
-
-  async function handleApprove() {
-    try {
-      setStatus("Approving...");
-      const amountWei = parseUnits(amountIn, Number(decimalsIn));
-      await approveToken(tokenIn, amountWei);
-      setNeedsApproval(false);
-      setStatus("Approved");
-    } catch {
-      setStatus("Errore approvazione");
-    }
-  }
+  const [tokenIn, setTokenIn] =
+    useState<keyof typeof CONTRACTS.tokens>("ETH");
+  const [tokenOut, setTokenOut] =
+    useState<keyof typeof CONTRACTS.tokens>("USDT");
+  const [amount, setAmount] = useState("");
 
   async function handleSwap() {
     try {
-      setStatus("Swapping...");
-      const receipt = await swapExactTokensForTokens(
-        tokenIn,
-        tokenOut,
-        amountIn,
-        Number(decimalsIn)
-      );
-      setStatus("Swap OK: " + receipt.hash);
-    } catch (e: any) {
-      if (e.message?.includes("NEEDS_APPROVAL")) {
-        setNeedsApproval(true);
-        setStatus("Serve approvazione");
-      } else {
-        setStatus("Errore: " + e.message);
+      if (!amount) {
+        notifyError("Insert a valid amount");
+        return;
       }
+
+      await swap(
+        CONTRACTS.tokens[tokenIn],
+        CONTRACTS.tokens[tokenOut],
+        BigInt(Math.floor(Number(amount) * 1e18))
+      );
+    } catch {
+      notifyError("Swap failed");
     }
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">Swap</h2>
+    <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
+      <h2 className="text-2xl font-bold mb-4">Swap</h2>
 
-      <input className="input" placeholder="Token In" value={tokenIn} onChange={e=>setTokenIn(e.target.value)} />
-      <input className="input" placeholder="Token Out" value={tokenOut} onChange={e=>setTokenOut(e.target.value)} />
-      <input className="input" placeholder="Amount" value={amountIn} onChange={e=>setAmountIn(e.target.value)} />
-      <input className="input" placeholder="Decimals" value={decimalsIn} onChange={e=>setDecimalsIn(e.target.value)} />
+      <div className="space-y-3 mb-4">
+        <label className="text-gray-300 text-sm">From</label>
+        <select
+          value={tokenIn}
+          onChange={(e) =>
+            setTokenIn(e.target.value as keyof typeof CONTRACTS.tokens)
+          }
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        >
+          {Object.keys(CONTRACTS.tokens).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
 
-      <button onClick={check} className="btn">Check</button>
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        />
+      </div>
 
-      {needsApproval ? (
-        <button onClick={handleApprove} className="btn bg-yellow-500 hover:bg-yellow-400">
-          Approve
-        </button>
-      ) : (
-        <button onClick={handleSwap} className="btn bg-sky-500 hover:bg-sky-400">
-          Swap
-        </button>
-      )}
+      <div className="space-y-3 mb-4">
+        <label className="text-gray-300 text-sm">To</label>
+        <select
+          value={tokenOut}
+          onChange={(e) =>
+            setTokenOut(e.target.value as keyof typeof CONTRACTS.tokens)
+          }
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        >
+          {Object.keys(CONTRACTS.tokens).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
+      </div>
 
-      <p className="status">{status}</p>
+      <button
+        disabled={!isConnected}
+        onClick={handleSwap}
+        className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+      >
+        {isConnected ? "Swap" : "Connect Wallet"}
+      </button>
     </div>
   );
 }
-
