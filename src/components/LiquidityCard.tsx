@@ -1,114 +1,99 @@
 "use client";
 
 import { useState } from "react";
-import {
-  addLiquidity,
-  approveToken,
-  checkAllowance
-} from "@/lib/web3";
-import { parseUnits } from "ethers";
+import { useAccount } from "wagmi";
+import { useLiquidity } from "@/hooks/useLiquidity";
+import { CONTRACTS } from "@/lib/contracts";
+import { notifyError } from "@/lib/notify";
 
 export default function LiquidityCard() {
-  const [tokenA, setTokenA] = useState("");
-  const [tokenB, setTokenB] = useState("");
+  const { isConnected } = useAccount();
+  const { addLiquidity } = useLiquidity();
+
+  const [tokenA, setTokenA] = useState<keyof typeof CONTRACTS.tokens>("ETH");
+  const [tokenB, setTokenB] = useState<keyof typeof CONTRACTS.tokens>("USDT");
+
   const [amountA, setAmountA] = useState("");
   const [amountB, setAmountB] = useState("");
-  const [decA, setDecA] = useState("18");
-  const [decB, setDecB] = useState("18");
-  const [needsApprovalA, setNeedsApprovalA] = useState(false);
-  const [needsApprovalB, setNeedsApprovalB] = useState(false);
-  const [status, setStatus] = useState("");
-
-  async function check() {
-    try {
-      if (!window.ethereum) return;
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
-      const account = accounts[0];
-      const amountAWei = parseUnits(amountA || "0", Number(decA));
-      const amountBWei = parseUnits(amountB || "0", Number(decB));
-      const approvedA = await checkAllowance(tokenA, account, amountAWei);
-      const approvedB = await checkAllowance(tokenB, account, amountBWei);
-      setNeedsApprovalA(!approvedA);
-      setNeedsApprovalB(!approvedB);
-      setStatus("Check completato");
-    } catch {
-      setStatus("Errore nel check");
-    }
-  }
-
-  async function approveA() {
-    try {
-      setStatus("Approving A...");
-      const amountAWei = parseUnits(amountA, Number(decA));
-      await approveToken(tokenA, amountAWei);
-      setNeedsApprovalA(false);
-      setStatus("Token A approvato");
-    } catch {
-      setStatus("Errore approvazione A");
-    }
-  }
-
-  async function approveB() {
-    try {
-      setStatus("Approving B...");
-      const amountBWei = parseUnits(amountB, Number(decB));
-      await approveToken(tokenB, amountBWei);
-      setNeedsApprovalB(false);
-      setStatus("Token B approvato");
-    } catch {
-      setStatus("Errore approvazione B");
-    }
-  }
 
   async function handleAdd() {
     try {
-      setStatus("Adding liquidity...");
-      const receipt = await addLiquidity(
-        tokenA,
-        tokenB,
-        amountA,
-        amountB,
-        Number(decA),
-        Number(decB)
+      if (!amountA || !amountB) {
+        notifyError("Insert valid amounts");
+        return;
+      }
+
+      await addLiquidity(
+        CONTRACTS.tokens[tokenA],
+        CONTRACTS.tokens[tokenB],
+        BigInt(Math.floor(Number(amountA) * 1e18)),
+        BigInt(Math.floor(Number(amountB) * 1e18))
       );
-      setStatus("Liquidity OK: " + receipt.hash);
-    } catch (e: any) {
-      setStatus("Errore: " + e.message);
+    } catch (err) {
+      notifyError("Add liquidity failed");
     }
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">Add Liquidity</h2>
+    <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
+      <h2 className="text-2xl font-bold mb-4">Add Liquidity</h2>
 
-      <input className="input" placeholder="Token A" value={tokenA} onChange={e=>setTokenA(e.target.value)} />
-      <input className="input" placeholder="Amount A" value={amountA} onChange={e=>setAmountA(e.target.value)} />
-      <input className="input" placeholder="Decimals A" value={decA} onChange={e=>setDecA(e.target.value)} />
+      {/* TOKEN A */}
+      <div className="space-y-2 mb-4">
+        <label className="text-gray-300">Token A</label>
+        <select
+          value={tokenA}
+          onChange={(e) =>
+            setTokenA(e.target.value as keyof typeof CONTRACTS.tokens)
+          }
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        >
+          {Object.keys(CONTRACTS.tokens).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
 
-      <input className="input" placeholder="Token B" value={tokenB} onChange={e=>setTokenB(e.target.value)} />
-      <input className="input" placeholder="Amount B" value={amountB} onChange={e=>setAmountB(e.target.value)} />
-      <input className="input" placeholder="Decimals B" value={decB} onChange={e=>setDecB(e.target.value)} />
+        <input
+          type="number"
+          placeholder="Amount A"
+          value={amountA}
+          onChange={(e) => setAmountA(e.target.value)}
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        />
+      </div>
 
-      <button onClick={check} className="btn">Check</button>
+      {/* TOKEN B */}
+      <div className="space-y-2 mb-4">
+        <label className="text-gray-300">Token B</label>
+        <select
+          value={tokenB}
+          onChange={(e) =>
+            setTokenB(e.target.value as keyof typeof CONTRACTS.tokens)
+          }
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        >
+          {Object.keys(CONTRACTS.tokens).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
 
-      {needsApprovalA && (
-        <button onClick={approveA} className="btn bg-yellow-500 hover:bg-yellow-400">
-          Approve A
-        </button>
-      )}
-      {needsApprovalB && (
-        <button onClick={approveB} className="btn bg-yellow-500 hover:bg-yellow-400">
-          Approve B
-        </button>
-      )}
+        <input
+          type="number"
+          placeholder="Amount B"
+          value={amountB}
+          onChange={(e) => setAmountB(e.target.value)}
+          className="w-full bg-gray-800 p-3 rounded-lg"
+        />
+      </div>
 
-      {!needsApprovalA && !needsApprovalB && (
-        <button onClick={handleAdd} className="btn bg-sky-500 hover:bg-sky-400">
-          Add Liquidity
-        </button>
-      )}
-
-      <p className="status">{status}</p>
+      {/* BUTTON */}
+      <button
+        disabled={!isConnected}
+        onClick={handleAdd}
+        className="w-full mt-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold"
+      >
+        {isConnected ? "Add Liquidity" : "Connect Wallet"}
+      </button>
     </div>
   );
 }

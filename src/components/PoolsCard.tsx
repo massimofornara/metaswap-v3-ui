@@ -1,28 +1,47 @@
 "use client";
 
+import { CONTRACTS } from "@/lib/contracts";
+import { usePool } from "@/hooks/usePool";
+
 export default function PoolsCard() {
-  // in futuro: leggere da Factory.getPool(tokenA, tokenB)
-  const pools = [
-    { name: "NENO / USDT", tokenA: "0xeF3F5C1892A8d7A3304E4A15959E124402d69974", tokenB: "0x55d398326f99059fF775485246999027B3197955" },
-    { name: "GHOST / USDT", tokenA: "0x66f2ee37e3ee54ba399e25cB6429A8a42B2b7a8f", tokenB: "0x55d398326f99059fF775485246999027B3197955" }
-  ];
+  const { reserve0, reserve1 } = usePool(CONTRACTS.pools.ETH_USDT);
+
+  const tvl =
+    Number(reserve0) / 1e18 + Number(reserve1) / 1e18;
 
   return (
-    <div className="card">
-      <h2 className="card-title">Pools</h2>
-      <ul className="mt-2 space-y-2 text-sm">
-        {pools.map((p) => (
-          <li key={p.name} className="flex flex-col border border-slate-800 rounded-lg p-2">
-            <span className="font-medium">{p.name}</span>
-            <span className="text-xs text-slate-500">
-              A: {p.tokenA}
-            </span>
-            <span className="text-xs text-slate-500">
-              B: {p.tokenB}
-            </span>
-          </li>
-        ))}
-      </ul>
+    <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
+      <h2 className="text-2xl font-bold mb-4">Pool ETH / USDT</h2>
+
+      <div className="space-y-3">
+        <div>
+          <p className="text-gray-400">Reserve ETH:</p>
+          <p className="text-xl font-semibold text-blue-400">
+            {Number(reserve0) / 1e18}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400">Reserve USDT:</p>
+          <p className="text-xl font-semibold text-green-400">
+            {Number(reserve1) / 1e18}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400">TVL (approx):</p>
+          <p className="text-xl font-semibold text-purple-400">
+            {tvl.toFixed(2)}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400">Pool Address:</p>
+          <p className="font-mono text-sm text-yellow-400 break-all">
+            {CONTRACTS.pools.ETH_USDT}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
