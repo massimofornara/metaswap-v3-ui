@@ -1,9 +1,9 @@
 "use client";
 
-import Header from "@/components/Header";
 import SwapCard from "@/components/swap/SwapCard";
-import LiquidityCard from "@/components/liquidity/LiquidityCard";
-import PoolsCard from "@/components/pools/PoolsCard";
+import AddLiquidityCard from "@/components/liquidity/AddLiquidityCard";
+import RemoveLiquidityCard from "@/components/liquidity/RemoveLiquidityCard";
+import PoolList from "@/components/pools/PoolList";
 import PortfolioCard from "@/components/portfolio/PortfolioCard";
 import TrendingPools from "@/components/analytics/TrendingPools";
 import TVLChart from "@/components/analytics/TVLChart";
@@ -11,7 +11,6 @@ import TVLChart from "@/components/analytics/TVLChart";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
-      <Header />
 
       {/* HERO */}
       <section className="relative px-6 py-24 text-center overflow-hidden">
@@ -50,14 +49,18 @@ export default function Home() {
           <div id="swap">
             <SwapCard />
           </div>
-          <LiquidityCard />
+
+          {/* Add + Remove Liquidity */}
+          <AddLiquidityCard />
+          <RemoveLiquidityCard />
         </div>
 
         {/* CENTER COLUMN */}
         <div className="space-y-8">
           <div id="pools">
-            <PoolsCard />
+            <PoolList />
           </div>
+
           <TrendingPools />
         </div>
 
