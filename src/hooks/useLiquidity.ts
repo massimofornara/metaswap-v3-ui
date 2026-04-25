@@ -2,6 +2,7 @@
 "use client";
 
 import { useWriteContract } from "wagmi";
+import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
@@ -16,6 +17,7 @@ export function useLiquidity() {
   ) {
     try {
       const tx = await writeContractAsync({
+        chain: bsc,
         address: CONTRACTS.router.address as `0x${string}`,
         abi: CONTRACTS.router.abi,
         functionName: "addLiquidity",
@@ -32,4 +34,3 @@ export function useLiquidity() {
 
   return { addLiquidity };
 }
-

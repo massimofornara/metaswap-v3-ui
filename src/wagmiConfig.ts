@@ -1,5 +1,5 @@
+// src/wagmiConfig.ts
 import { createConfig, http } from "wagmi";
-import { injected } from "@wagmi/connectors";
 import { bsc } from "wagmi/chains";
 
 export const wagmiConfig = createConfig({
@@ -7,7 +7,5 @@ export const wagmiConfig = createConfig({
   transports: {
     [bsc.id]: http("https://bsc-dataseed.binance.org"),
   },
-  connectors: [
-    injected(),
-  ],
+  connectors: [], // RainbowKit crea i connectors, qui non serve nulla
 });
