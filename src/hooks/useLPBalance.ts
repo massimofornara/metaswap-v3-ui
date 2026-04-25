@@ -9,6 +9,9 @@ export function useLPBalance(address?: string) {
   useEffect(() => {
     if (!address) return;
 
+    // TypeScript richiede un address tipizzato come `0x${string}`
+    const owner = address as `0x${string}`;
+
     async function load() {
       try {
         const result = await readContract(wagmiConfig, {
@@ -21,9 +24,9 @@ export function useLPBalance(address?: string) {
               inputs: [{ name: "owner", type: "address" }],
               outputs: [{ name: "balance", type: "uint256" }],
             },
-          ],
+          ] as const,
           functionName: "balanceOf",
-          args: [address as '0x${string}'],
+          args: [owner],
         });
 
         setBalance(result as bigint);
