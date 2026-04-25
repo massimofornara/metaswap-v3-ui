@@ -1,54 +1,76 @@
-import Header from "@/components/layout/Header";
-import Hero from "@/components/layout/Hero";
+"use client";
+
 import SwapCard from "@/components/swap/SwapCard";
-import LiquidityCard from "@/components/liquidity/LiquidityCard";
-import PoolsCard from "@/components/pools/PoolsCard";
+import AddLiquidityCard from "@/components/liquidity/AddLiquidityCard";
+import RemoveLiquidityCard from "@/components/liquidity/RemoveLiquidityCard";
+import PoolList from "@/components/pools/PoolList";
 import PortfolioCard from "@/components/portfolio/PortfolioCard";
-import TrendingPools from "@/components/pools/TrendingPools";
+import TrendingPools from "@/components/analytics/TrendingPools";
 import TVLChart from "@/components/analytics/TVLChart";
-import VolumeChart from "@/components/analytics/VolumeChart";
-import RecentTransactions from "@/components/transactions/RecentTransactions";
-import UserPositions from "@/components/positions/UserPositions";
-import Leaderboard from "@/components/leaderboard/Leaderboard";
-import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
-      <Header />
-      <Hero />
 
-      <section className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <SwapCard />
-        <LiquidityCard />
-        <PoolsCard />
-        <PortfolioCard />
+      {/* HERO */}
+      <section className="relative px-6 py-24 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/20 to-black pointer-events-none" />
+
+        <h1 className="text-6xl font-extrabold mb-6 tracking-tight">
+          MetaSwap V3 PRO
+        </h1>
+
+        <p className="text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
+          Il DEX di nuova generazione con liquidità dinamica, swap ultra‑veloci,
+          analytics avanzati e integrazione Web3 completa.
+        </p>
+
+        <div className="mt-10 flex justify-center gap-4">
+          <a
+            href="#swap"
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold transition"
+          >
+            Inizia a Swappare
+          </a>
+          <a
+            href="#pools"
+            className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition"
+          >
+            Esplora le Pool
+          </a>
+        </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <TVLChart />
-        <VolumeChart />
-      </section>
+      {/* MAIN GRID */}
+      <section className="grid grid-cols-1 xl:grid-cols-3 gap-8 px-6 pb-24 max-w-7xl mx-auto">
 
-      <section className="max-w-6xl mx-auto px-4 py-10">
-        <TrendingPools />
-      </section>
+        {/* LEFT COLUMN */}
+        <div className="space-y-8">
+          <div id="swap">
+            <SwapCard />
+          </div>
 
-      <section className="max-w-6xl mx-auto px-4 py-10">
-        <RecentTransactions />
-      </section>
+          {/* Add + Remove Liquidity */}
+          <AddLiquidityCard />
+          <RemoveLiquidityCard />
+        </div>
 
-      <section className="max-w-6xl mx-auto px-4 py-10">
-        <UserPositions />
-      </section>
+        {/* CENTER COLUMN */}
+        <div className="space-y-8">
+          <div id="pools">
+            <PoolList />
+          </div>
 
-      <section className="max-w-6xl mx-auto px-4 py-10">
-        <Leaderboard />
-      </section>
+          <TrendingPools />
+        </div>
 
-      <Footer />
+        {/* RIGHT COLUMN */}
+        <div className="space-y-8">
+          <PortfolioCard />
+          <TVLChart />
+        </div>
+
+      </section>
     </main>
   );
 }
-
-
