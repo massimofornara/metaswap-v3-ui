@@ -25,7 +25,7 @@ async function writeTx(
     address: CONTRACTS.router.address as `0x${string}`,
     abi: CONTRACTS.router.abi,
     functionName,
-    args,
+    args: args as any,
   });
 }
 
