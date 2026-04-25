@@ -9,7 +9,10 @@ import { CONTRACTS } from "@/lib/contracts";
 // ------------------------------------------------------
 // GENERIC WRITE WRAPPER
 // ------------------------------------------------------
-async function writeTx(functionName: string, args: any[]) {
+async function writeTx(
+  functionName: keyof typeof CONTRACTS.router.abi[number]["name"],
+  args: any[]
+) {
   const walletClient = await getWalletClient(wagmiConfig);
 
   if (!walletClient) {
@@ -18,6 +21,7 @@ async function writeTx(functionName: string, args: any[]) {
 
   return walletClient.writeContract({
     chain: bsc,
+    account: walletClient.account, // REQUIRED BY WAGMI v2
     address: CONTRACTS.router.address as `0x${string}`,
     abi: CONTRACTS.router.abi,
     functionName,
@@ -26,7 +30,7 @@ async function writeTx(functionName: string, args: any[]) {
 }
 
 // ------------------------------------------------------
-// ADD LIQUIDITY (vecchio nome richiesto dai componenti)
+// ADD LIQUIDITY
 // ------------------------------------------------------
 export async function addLiquidity(
   tokenA: `0x${string}`,
@@ -38,7 +42,7 @@ export async function addLiquidity(
 }
 
 // ------------------------------------------------------
-// REMOVE LIQUIDITY (vecchio nome richiesto dai componenti)
+// REMOVE LIQUIDITY
 // ------------------------------------------------------
 export async function removeLiquidity(
   tokenA: `0x${string}`,
@@ -49,7 +53,7 @@ export async function removeLiquidity(
 }
 
 // ------------------------------------------------------
-// SWAP TOKENS (vecchio nome richiesto dai componenti)
+// SWAP TOKENS
 // ------------------------------------------------------
 export async function swapTokens(
   tokenIn: `0x${string}`,
@@ -64,7 +68,7 @@ export async function swapTokens(
 }
 
 // ------------------------------------------------------
-// GET PRICE (richiesto da PriceCard)
+// GET PRICE
 // ------------------------------------------------------
 export async function getPrice(
   tokenA: `0x${string}`,
