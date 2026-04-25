@@ -12,7 +12,7 @@ export function useLPBalance(address?: string) {
     async function load() {
       try {
         const result = await readContract(wagmiConfig, {
-          address: CONTRACTS.METASWAP_ROUTER as `0x${string}`,
+          address: CONTRACTS.router.address as `0x${string}`,
           abi: [
             {
               name: "balanceOf",
