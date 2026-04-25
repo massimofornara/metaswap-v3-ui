@@ -23,7 +23,7 @@ export function useLPBalance(address?: string) {
             },
           ],
           functionName: "balanceOf",
-          args: [address],
+          args: [address as '0x${string}'],
         });
 
         setBalance(result as bigint);
