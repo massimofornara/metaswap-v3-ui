@@ -10,7 +10,7 @@ import { CONTRACTS } from "@/lib/contracts";
 // GENERIC WRITE WRAPPER
 // ------------------------------------------------------
 async function writeTx(
-  functionName: Extract<typeof CONTRACTS.router.abi[number], { name: string }>["name"],
+  functionName: "addLiquidity" | "removeLiquidity" | "swapExactTokensForTokens",
   args: any[]
 ) {
   const walletClient = await getWalletClient(wagmiConfig);
