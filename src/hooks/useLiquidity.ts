@@ -1,12 +1,14 @@
 // src/hooks/useLiquidity.ts
 "use client";
 
-import { useWriteContract } from "wagmi";
+import { useWriteContract, useAccount } from "wagmi";
+import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
 export function useLiquidity() {
   const { writeContractAsync } = useWriteContract();
+  const { address: account } = useAccount();
 
   async function addLiquidity(
     tokenA: `0x${string}`,
@@ -20,8 +22,8 @@ export function useLiquidity() {
         abi: CONTRACTS.router.abi,
         functionName: "addLiquidity",
         args: [tokenA, tokenB, amountA, amountB],
-        // opzionale ma pulito: forziamo la chain BSC
-        chainId: 56,
+        chain: bsc,
+        account,
       });
 
       notifySuccess("Liquidity added");
