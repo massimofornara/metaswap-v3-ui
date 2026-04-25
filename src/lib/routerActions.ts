@@ -22,7 +22,7 @@ export async function addLiquidityRouter(
   }
 
   return walletClient.writeContract({
-    chain: bsc, // <--- OBBLIGATORIO PER WAGMI V2
+    chain: bsc, // OBBLIGATORIO
     address: CONTRACTS.router.address as `0x${string}`,
     abi: CONTRACTS.router.abi,
     functionName: "addLiquidity",
@@ -52,4 +52,3 @@ export async function swapRouter(
     args: [tokenIn, tokenOut, amountIn],
   });
 }
-
