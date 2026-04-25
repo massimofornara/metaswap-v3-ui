@@ -1,4 +1,4 @@
-import PortfolioCard from "@/components/PortfolioCard";
+import PortfolioCard from "@/components/portfolio/PortfolioCard";
 
 export default function PortfolioPage() {
   return (
