@@ -1,26 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { getPrice } from "@/lib/web3";
+import { removeLiquidity } from "@/lib/web3";
 
-export default function PriceCard() {
+export default function RemoveLiquidityCard() {
   const [tokenA, setTokenA] = useState("");
   const [tokenB, setTokenB] = useState("");
-  const [price, setPrice] = useState<number | null>(null);
+  const [lpAmount, setLpAmount] = useState("");
 
-  async function handleGetPrice() {
+  async function handleRemove() {
     try {
-      const p = await getPrice(tokenA, tokenB);
-      setPrice(p);
+      await removeLiquidity(tokenA, tokenB, lpAmount);
+      alert("Liquidità rimossa con successo");
     } catch (err) {
       console.error(err);
-      alert("Errore nel recupero del prezzo");
+      alert("Errore nella rimozione della liquidità");
     }
   }
 
   return (
     <div className="p-4 border border-zinc-800 rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Get Price</h2>
+      <h2 className="text-xl font-semibold mb-4">Remove Liquidity</h2>
 
       <input
         className="w-full p-2 mb-2 bg-zinc-900 border border-zinc-700 rounded"
@@ -36,16 +36,19 @@ export default function PriceCard() {
         onChange={(e) => setTokenB(e.target.value)}
       />
 
-      <button
-        onClick={handleGetPrice}
-        className="w-full p-2 bg-blue-600 rounded mt-2"
-      >
-        Get Price
-      </button>
+      <input
+        className="w-full p-2 mb-2 bg-zinc-900 border border-zinc-700 rounded"
+        placeholder="LP amount"
+        value={lpAmount}
+        onChange={(e) => setLpAmount(e.target.value)}
+      />
 
-      {price !== null && (
-        <p className="mt-4">Prezzo: {price.toString()}</p>
-      )}
+      <button
+        onClick={handleRemove}
+        className="w-full p-2 bg-red-600 rounded mt-2"
+      >
+        Remove Liquidity
+      </button>
     </div>
   );
 }

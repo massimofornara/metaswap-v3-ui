@@ -1,74 +1,36 @@
 "use client";
 
-import { useAccount } from "wagmi";
-import { useLPBalance } from "@/hooks/useLPBalance";
-import { CONTRACTS } from "@/lib/contracts";
-import { notifySuccess, notifyError } from "@/lib/notify";
+import { useAccount, useBalance } from "wagmi";
+import { GHOST, NENO } from "@/lib/tokens";
 
 export default function PortfolioCard() {
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
 
-  const lpBalance = useLPBalance(
-    CONTRACTS.pools.ETH_USDT,
-    address ?? "0x0000000000000000000000000000000000000000"
-  );
-
-  async function addLPToMetaMask() {
-    try {
-      if (!window.ethereum) {
-        notifyError("MetaMask not detected");
-        return;
-      }
-
-      await window.ethereum.request({
-        method: "wallet_watchAsset",
-        params: {
-          type: "ERC20",
-          options: {
-            address: CONTRACTS.pools.ETH_USDT,
-            symbol: "MSLP",
-            decimals: 18,
-          },
-        },
-      });
-
-      notifySuccess("LP Token added to MetaMask");
-    } catch {
-      notifyError("Failed to add LP token");
-    }
-  }
+  const ghost = useBalance({ address, token: GHOST });
+  const neno = useBalance({ address, token: NENO });
 
   return (
-    <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
-      <h2 className="text-2xl font-bold mb-4">Portfolio</h2>
+    <div className="p-4 border border-zinc-800 rounded-lg">
+      <h2 className="text-xl font-semibold mb-4">Portfolio</h2>
 
-      {!isConnected ? (
-        <p className="text-gray-400">
-          Connect your wallet to view your portfolio.
-        </p>
-      ) : (
-        <div className="space-y-4">
-          <div>
-            <p className="text-gray-300 text-sm">Wallet</p>
-            <p className="font-mono text-blue-400 text-xs break-all">
-              {address}
-            </p>
-          </div>
+      {!address && <p>Connetti il wallet per vedere il portfolio</p>}
 
-          <div>
-            <p className="text-gray-300 text-sm">LP Balance (ETH/USDT)</p>
-            <p className="text-xl font-bold">
-              {Number(lpBalance) / 1e18} MSLP
-            </p>
-          </div>
+      {address && (
+        <>
+          <p className="mb-2">
+            <strong>Wallet:</strong> {address}
+          </p>
 
-          <button
-            onClick={addLPToMetaMask}
-            className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold"
-          >
-            Add LP Token to MetaMask
-          </button>
-        </div>
+          <p className="mb-2">
+            <strong>GHOST:</strong>{" "}
+            {ghost.data ? ghost.data.formatted : "…"}
+          </p>
+
+          <p className="mb-2">
+            <strong>NENO:</strong>{" "}
+            {neno.data ? neno.data.formatted : "…"}
+          </p>
+        </>
       )}
     </div>
   );
