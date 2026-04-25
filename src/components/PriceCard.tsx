@@ -10,7 +10,7 @@ export default function PriceCard() {
 
   async function handleGetPrice() {
     try {
-      const p = await getPrice(tokenA, tokenB);
+      const p = await getPrice(tokenA as `0x${string}`, tokenB as `0x${string}`);
       setPrice(p);
     } catch (err) {
       console.error(err);
