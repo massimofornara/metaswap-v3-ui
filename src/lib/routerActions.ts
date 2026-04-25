@@ -23,6 +23,7 @@ export async function addLiquidityRouter(
 
   return walletClient.writeContract({
     chain: bsc, // OBBLIGATORIO
+    account: walletClient.account,
     address: CONTRACTS.router.address as `0x${string}`,
     abi: CONTRACTS.router.abi,
     functionName: "addLiquidity",
@@ -46,6 +47,7 @@ export async function swapRouter(
 
   return walletClient.writeContract({
     chain: bsc,
+    account: walletClient.account,
     address: CONTRACTS.router.address as `0x${string}`,
     abi: CONTRACTS.router.abi,
     functionName: "swapExactTokensForTokens",
