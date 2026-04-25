@@ -1,3 +1,4 @@
+// src/hooks/useLiquidity.ts
 "use client";
 
 import { useWriteContract } from "wagmi";
@@ -31,3 +32,4 @@ export function useLiquidity() {
 
   return { addLiquidity };
 }
+

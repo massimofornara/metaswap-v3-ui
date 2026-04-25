@@ -1,37 +1,33 @@
-import { useState } from "react";
-import { writeContract } from "@wagmi/core";
-import { wagmiConfig } from "@/wagmiConfig";
+// src/hooks/useSwap.ts
+"use client";
+
+import { useWriteContract } from "wagmi";
 import { CONTRACTS } from "@/lib/contracts";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 export function useSwap() {
-  const [loading, setLoading] = useState(false);
+  const { writeContractAsync } = useWriteContract();
 
-  async function swap(amountIn: bigint) {
+  async function swapExactTokensForTokens(
+    tokenIn: `0x${string}`,
+    tokenOut: `0x${string}`,
+    amountIn: bigint
+  ) {
     try {
-      setLoading(true);
-
-      const tx = await writeContract(wagmiConfig, {
-        address: CONTRACTS.METASWAP_ROUTER as `0x${string}`,
-        abi: [
-          {
-            name: "swapExactTokensForTokens",
-            type: "function",
-            stateMutability: "nonpayable",
-            inputs: [
-              { name: "amountIn", type: "uint256" }
-            ],
-            outputs: []
-          }
-        ],
+      const tx = await writeContractAsync({
+        address: CONTRACTS.router.address as `0x${string}`,
+        abi: CONTRACTS.router.abi,
         functionName: "swapExactTokensForTokens",
-        args: [amountIn]
+        args: [tokenIn, tokenOut, amountIn],
       });
 
+      notifySuccess("Swap eseguito");
       return tx;
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      notifyError("Swap fallito");
+      throw err;
     }
   }
 
-  return { swap, loading };
+  return { swapExactTokensForTokens };
 }
