@@ -23,7 +23,7 @@ const pools = [
   },
 ];
 
-export default function TrendingPools() {
+export function TrendingPools() {
   return (
     <div className="bg-gray-900/60 p-6 rounded-xl border border-gray-700 shadow-xl">
       <h2 className="text-2xl font-bold mb-4">Trending Pools</h2>
@@ -54,3 +54,5 @@ export default function TrendingPools() {
     </div>
   );
 }
+
+export default TrendingPools;
