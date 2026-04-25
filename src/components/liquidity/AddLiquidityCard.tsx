@@ -11,7 +11,7 @@ export default function AddLiquidityCard() {
 
   async function handleAdd() {
     try {
-      await addLiquidity(tokenA, tokenB, amountA, amountB);
+      await addLiquidity(tokenA as `0x${string}`, tokenB as `0x${string}`, BigInt(amountA), BigInt(amountB));
       alert("Liquidità aggiunta con successo");
     } catch (err) {
       console.error(err);

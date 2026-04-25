@@ -10,7 +10,7 @@ export default function RemoveLiquidityCard() {
 
   async function handleRemove() {
     try {
-      await removeLiquidity(tokenA, tokenB, lpAmount);
+      await removeLiquidity(tokenA as `0x${string}`, tokenB as `0x${string}`, BigInt(lpAmount));
       alert("Liquidità rimossa con successo");
     } catch (err) {
       console.error(err);
