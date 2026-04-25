@@ -1,9 +1,13 @@
-import PoolsList from "@/components/pools/PoolCard";
+"use client";
+
+import PoolList from "@/components/pools/PoolList";
 
 export default function PoolsPage() {
   return (
-    <div className="mt-6">
+    <main className="min-h-screen bg-black text-white px-6 py-12">
+      <h1 className="text-4xl font-bold mb-8">Pool disponibili</h1>
       <PoolList />
-    </div>
+    </main>
   );
 }
+
