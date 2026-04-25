@@ -1,7 +1,7 @@
 "use client";
 
 import { useWriteContract } from "wagmi";
-import { ABIS, CONTRACTS } from "@/lib/contracts";
+import { CONTRACTS } from "@/lib/contracts";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
 export function useLiquidity() {
@@ -16,7 +16,7 @@ export function useLiquidity() {
     try {
       const tx = await writeContractAsync({
         address: CONTRACTS.router,
-        abi: ABIS.router,
+        abi: CONTRACTS.router.abi,
         functionName: "addLiquidity",
         args: [tokenA, tokenB, amountA, amountB],
       });
