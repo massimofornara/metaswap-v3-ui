@@ -1,33 +1,32 @@
 "use client";
 
 import { useWriteContract } from "wagmi";
-import { ABIS, CONTRACTS } from "@/lib/contracts";
+import { CONTRACTS } from "@/lib/contracts";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
-export function useLiquidity() {
+export function usePool() {
   const { writeContractAsync } = useWriteContract();
 
-  async function addLiquidity(
+  async function removeLiquidity(
     tokenA: string,
     tokenB: string,
-    amountA: bigint,
-    amountB: bigint
+    liquidity: bigint
   ) {
     try {
       const tx = await writeContractAsync({
-        address: CONTRACTS.router,
-        abi: ABIS.router,
-        functionName: "addLiquidity",
-        args: [tokenA, tokenB, amountA, amountB],
+        address: CONTRACTS.router.address,
+        abi: CONTRACTS.router.abi,
+        functionName: "removeLiquidity",
+        args: [tokenA, tokenB, liquidity],
       });
 
-      notifySuccess("Liquidity added");
+      notifySuccess("Liquidity removed");
       return tx;
     } catch (err) {
-      notifyError("Add liquidity failed");
+      notifyError("Remove liquidity failed");
       throw err;
     }
   }
 
-  return { addLiquidity };
+  return { removeLiquidity };
 }
