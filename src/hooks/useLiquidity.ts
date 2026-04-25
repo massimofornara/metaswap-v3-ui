@@ -1,42 +1,33 @@
-import { useState } from "react";
-import { writeContract } from "@wagmi/core";
-import { wagmiConfig } from "@/wagmiConfig";
+"use client";
+
+import { useWriteContract } from "wagmi";
 import { CONTRACTS } from "@/lib/contracts";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 export function useLiquidity() {
-  const [loading, setLoading] = useState(false);
+  const { writeContractAsync } = useWriteContract();
 
-  async function addLiquidity(amountA: bigint, amountB: bigint) {
+  async function addLiquidity(
+    tokenA: `0x${string}`,
+    tokenB: `0x${string}`,
+    amountA: bigint,
+    amountB: bigint
+  ) {
     try {
-      setLoading(true);
-
-      // Esempio generico — aggiornerai con il tuo router reale
-      const tx = await writeContract(wagmiConfig, {
-        address: CONTRACTS.METASWAP_ROUTER as `0x${string}`,
-        abi: [
-          {
-            name: "addLiquidity",
-            type: "function",
-            stateMutability: "nonpayable",
-            inputs: [
-              { name: "amountA", type: "uint256" },
-              { name: "amountB", type: "uint256" }
-            ],
-            outputs: []
-          }
-        ],
+      const tx = await writeContractAsync({
+        address: CONTRACTS.router.address as `0x${string}`,
+        abi: CONTRACTS.router.abi,
         functionName: "addLiquidity",
-        args: [amountA, amountB]
+        args: [tokenA, tokenB, amountA, amountB],
       });
 
+      notifySuccess("Liquidity added");
       return tx;
     } catch (err) {
-      console.error("Liquidity error:", err);
+      notifyError("Add liquidity failed");
       throw err;
-    } finally {
-      setLoading(false);
     }
   }
 
-  return { addLiquidity, loading };
+  return { addLiquidity };
 }
