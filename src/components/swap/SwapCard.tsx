@@ -10,7 +10,7 @@ export default function SwapCard() {
 
   async function handleSwap() {
     try {
-      await swapTokens(tokenIn, tokenOut, amountIn);
+      await swapTokens(tokenIn as `0x${string}`, tokenOut as `0x${string}`, BigInt(amountIn));
       alert("Swap eseguito con successo");
     } catch (err) {
       console.error(err);
