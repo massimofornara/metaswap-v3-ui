@@ -1,5 +1,5 @@
 import { createConfig, http } from "@wagmi/core";
-import { injected } from "@wagmi/core/connectors";
+import { injected } from "@wagmi/connectors";
 import { bsc } from "@wagmi/core/chains";
 
 export const wagmiConfig = createConfig({
