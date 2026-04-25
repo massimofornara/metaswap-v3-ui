@@ -2,7 +2,6 @@
 "use client";
 
 import { useWriteContract } from "wagmi";
-import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
@@ -17,16 +16,18 @@ export function useLiquidity() {
   ) {
     try {
       const tx = await writeContractAsync({
-        chain: bsc,
         address: CONTRACTS.router.address as `0x${string}`,
         abi: CONTRACTS.router.abi,
         functionName: "addLiquidity",
         args: [tokenA, tokenB, amountA, amountB],
+        // opzionale ma pulito: forziamo la chain BSC
+        chainId: 56,
       });
 
       notifySuccess("Liquidity added");
       return tx;
     } catch (err) {
+      console.error("Add liquidity error:", err);
       notifyError("Add liquidity failed");
       throw err;
     }
@@ -34,3 +35,4 @@ export function useLiquidity() {
 
   return { addLiquidity };
 }
+
