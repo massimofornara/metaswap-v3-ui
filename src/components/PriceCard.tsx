@@ -6,7 +6,7 @@ import { getPrice } from "@/lib/web3";
 export default function PriceCard() {
   const [tokenA, setTokenA] = useState("");
   const [tokenB, setTokenB] = useState("");
-  const [price, setPrice] = useState<number | null>(null);
+  const [price, setPrice] = useState<bigint | null>(null);
 
   async function handleGetPrice() {
     try {
