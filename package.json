@@ -1,9 +1,26 @@
 {
+  "name": "metaswap-v3-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "wagmi": "2.19.5",
     "@rainbow-me/rainbowkit": "2.2.10",
     "viem": "2.9.16",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "zustand": "4.5.2",
+    "clsx": "2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5",
+    "tailwindcss": "3.4.3",
+    "postcss": "8.4.35",
+    "autoprefixer": "10.4.19"
   }
 }
