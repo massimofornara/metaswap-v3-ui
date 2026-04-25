@@ -1,18 +1,15 @@
 // src/lib/web3.ts
 "use client";
 
-import { getWalletClient } from "wagmi/actions";
+import { getWalletClient, readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/wagmiConfig";
 import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 
-// -----------------------------
-// GENERIC WRITE CONTRACT WRAPPER
-// -----------------------------
-export async function writeTx(
-  functionName: string,
-  args: (string | bigint)[]
-) {
+// ------------------------------------------------------
+// GENERIC WRITE WRAPPER
+// ------------------------------------------------------
+async function writeTx(functionName: string, args: any[]) {
   const walletClient = await getWalletClient(wagmiConfig);
 
   if (!walletClient) {
@@ -28,10 +25,10 @@ export async function writeTx(
   });
 }
 
-// -----------------------------
-// ADD LIQUIDITY
-// -----------------------------
-export async function addLiquidityWeb3(
+// ------------------------------------------------------
+// ADD LIQUIDITY (vecchio nome richiesto dai componenti)
+// ------------------------------------------------------
+export async function addLiquidity(
   tokenA: `0x${string}`,
   tokenB: `0x${string}`,
   amountA: bigint,
@@ -40,10 +37,21 @@ export async function addLiquidityWeb3(
   return writeTx("addLiquidity", [tokenA, tokenB, amountA, amountB]);
 }
 
-// -----------------------------
-// SWAP
-// -----------------------------
-export async function swapWeb3(
+// ------------------------------------------------------
+// REMOVE LIQUIDITY (vecchio nome richiesto dai componenti)
+// ------------------------------------------------------
+export async function removeLiquidity(
+  tokenA: `0x${string}`,
+  tokenB: `0x${string}`,
+  liquidity: bigint
+) {
+  return writeTx("removeLiquidity", [tokenA, tokenB, liquidity]);
+}
+
+// ------------------------------------------------------
+// SWAP TOKENS (vecchio nome richiesto dai componenti)
+// ------------------------------------------------------
+export async function swapTokens(
   tokenIn: `0x${string}`,
   tokenOut: `0x${string}`,
   amountIn: bigint
@@ -53,4 +61,19 @@ export async function swapWeb3(
     tokenOut,
     amountIn,
   ]);
+}
+
+// ------------------------------------------------------
+// GET PRICE (richiesto da PriceCard)
+// ------------------------------------------------------
+export async function getPrice(
+  tokenA: `0x${string}`,
+  tokenB: `0x${string}`
+) {
+  return readContract(wagmiConfig, {
+    address: CONTRACTS.router.address as `0x${string}`,
+    abi: CONTRACTS.router.abi,
+    functionName: "getPrice",
+    args: [tokenA, tokenB],
+  });
 }
