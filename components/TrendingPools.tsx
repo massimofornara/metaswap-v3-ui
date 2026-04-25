@@ -5,7 +5,7 @@ import { CONTRACTS } from "@/lib/contracts";
 const pools = [
   {
     name: "ETH / USDT",
-    address: CONTRACTS.pools.ETH_USDT,
+    address: "0x34934efce35a8e2aEdF70B17C992fd3E964D7BF3",
     apr: 24.3,
     tvl: 320_000,
   },
