@@ -1,15 +1,15 @@
 "use client";
 
-import { createConfig, http } from "@wagmi/core";
-import { injected } from "@wagmi/core/connectors";
-import { bsc } from "@wagmi/core/chains";
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { wagmiConfig } from "@/wagmiConfig";
 
-export const wagmiConfig = createConfig({
-  chains: [bsc],
-  transports: {
-    [bsc.id]: http(),
-  },
-  connectors: [
-    injected()
-  ],
-});
+export function Web3Provider({ children }) {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <RainbowKitProvider>
+        {children}
+      </RainbowKitProvider>
+    </WagmiProvider>
+  );
+}

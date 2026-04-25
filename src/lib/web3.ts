@@ -1,170 +1,182 @@
 "use client";
 
 import {
-  BrowserProvider,
-  Contract,
+  createPublicClient,
+  createWalletClient,
+  custom,
+  http,
   parseUnits,
-  formatUnits
-} from "ethers";
-import { ROUTER_ADDRESS, FACTORY_ADDRESS, CHAIN_ID } from "./config";
-import routerJson from "@/abi/MetaSwapRouter.json";
-import factoryJson from "@/abi/MetaSwapFactory.json";
-import erc20Json from "@/abi/ERC20.json";
+  formatUnits,
+} from "viem";
+import { bsc } from "wagmi/chains";
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
+// -----------------------------
+// ADDRESSES
+// -----------------------------
+export const ROUTER = "0x0fff1dd121ed8a635f290d075d7a6e147817c5bb";
+export const FACTORY = "0x53AA5628360d4c7003ee7Cb679C05b950D192522";
+
+// -----------------------------
+// ABI DEL ROUTER (QUELLO CHE MI HAI DATO)
+// -----------------------------
+export const ROUTER_ABI = [
+  {
+    inputs: [{ internalType: "address", name: "_factory", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "tokenA", type: "address" },
+      { internalType: "address", name: "tokenB", type: "address" },
+      { internalType: "uint256", name: "amountA", type: "uint256" },
+      { internalType: "uint256", name: "amountB", type: "uint256" },
+    ],
+    name: "addLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "factory",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "tokenA", type: "address" },
+      { internalType: "address", name: "tokenB", type: "address" },
+    ],
+    name: "getPool",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "tokenA", type: "address" },
+      { internalType: "address", name: "tokenB", type: "address" },
+    ],
+    name: "getPrice",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "tokenA", type: "address" },
+      { internalType: "address", name: "tokenB", type: "address" },
+      { internalType: "uint256", name: "liquidity", type: "uint256" },
+    ],
+    name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "tokenIn", type: "address" },
+      { internalType: "address", name: "tokenOut", type: "address" },
+      { internalType: "uint256", name: "amountIn", type: "uint256" },
+    ],
+    name: "swapExactTokensForTokens",
+    outputs: [{ internalType: "uint256", name: "amountOut", type: "uint256" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+
+// -----------------------------
+// CLIENTS VIEM
+// -----------------------------
+const publicClient = createPublicClient({
+  chain: bsc,
+  transport: http("https://bsc-dataseed.binance.org"),
+});
+
+// walletClient viene creato SOLO lato client
+function getWalletClient() {
+  if (typeof window === "undefined") return null;
+  if (!(window as any).ethereum) return null;
+
+  return createWalletClient({
+    chain: bsc,
+    transport: custom((window as any).ethereum),
+  });
 }
 
-export async function getProvider() {
-  if (!window.ethereum) throw new Error("MetaMask non trovata");
-  const provider = new BrowserProvider(window.ethereum);
-  const network = await provider.getNetwork();
-  if (Number(network.chainId) !== CHAIN_ID) {
-    throw new Error("Rete sbagliata su MetaMask");
-  }
-  await provider.send("eth_requestAccounts", []);
-  return provider;
+// -----------------------------
+// FUNZIONI ON-CHAIN
+// -----------------------------
+
+// GET PRICE
+export async function getPrice(tokenA: string, tokenB: string) {
+  const price = await publicClient.readContract({
+    address: ROUTER,
+    abi: ROUTER_ABI,
+    functionName: "getPrice",
+    args: [tokenA, tokenB],
+  });
+
+  return Number(price);
 }
 
-export async function getSigner() {
-  const provider = await getProvider();
-  return provider.getSigner();
-}
-
-export function getRouter(signerOrProvider: any) {
-  return new Contract(ROUTER_ADDRESS, (routerJson as any).abi, signerOrProvider);
-}
-
-export function getFactory(signerOrProvider: any) {
-  return new Contract(FACTORY_ADDRESS, (factoryJson as any).abi, signerOrProvider);
-}
-
-export function getERC20(token: string, signerOrProvider: any) {
-  return new Contract(token, (erc20Json as any).abi, signerOrProvider);
-}
-
-/* --------- Allowance & Approve ---------- */
-
-export async function checkAllowance(
-  token: string,
-  owner: string,
-  amountWei: bigint
-) {
-  const provider = await getProvider();
-  const erc20 = getERC20(token, provider);
-  const allowance = await erc20.allowance(owner, ROUTER_ADDRESS);
-  return allowance >= amountWei;
-}
-
-export async function approveToken(token: string, amountWei: bigint) {
-  const signer = await getSigner();
-  const erc20 = getERC20(token, signer);
-  const tx = await erc20.approve(ROUTER_ADDRESS, amountWei);
-  return await tx.wait();
-}
-
-/* --------- Swap ---------- */
-
-export async function swapExactTokensForTokens(
-  tokenIn: string,
-  tokenOut: string,
-  amountIn: string,
-  decimalsIn: number
-) {
-  const signer = await getSigner();
-  const router = getRouter(signer);
-  const account = await signer.getAddress();
-
-  const amountInWei = parseUnits(amountIn, decimalsIn);
-
-  const isApproved = await checkAllowance(tokenIn, account, amountInWei);
-  if (!isApproved) throw new Error("NEEDS_APPROVAL");
-
-  const tx = await router.swapExactTokensForTokens(
-    tokenIn,
-    tokenOut,
-    amountInWei
-  );
-
-  return await tx.wait();
-}
-
-/* --------- Add Liquidity ---------- */
-
+// ADD LIQUIDITY
 export async function addLiquidity(
   tokenA: string,
   tokenB: string,
   amountA: string,
-  amountB: string,
-  decimalsA: number,
-  decimalsB: number
+  amountB: string
 ) {
-  const signer = await getSigner();
-  const router = getRouter(signer);
-  const account = await signer.getAddress();
+  const walletClient = getWalletClient();
+  if (!walletClient) throw new Error("Wallet non connesso");
 
-  const amountAWei = parseUnits(amountA, decimalsA);
-  const amountBWei = parseUnits(amountB, decimalsB);
-
-  const approvedA = await checkAllowance(tokenA, account, amountAWei);
-  const approvedB = await checkAllowance(tokenB, account, amountBWei);
-
-  if (!approvedA) throw new Error("NEEDS_APPROVAL_A");
-  if (!approvedB) throw new Error("NEEDS_APPROVAL_B");
-
-  const tx = await router.addLiquidity(
-    tokenA,
-    tokenB,
-    amountAWei,
-    amountBWei
-  );
-
-  return await tx.wait();
+  return walletClient.writeContract({
+    address: ROUTER,
+    abi: ROUTER_ABI,
+    functionName: "addLiquidity",
+    args: [
+      tokenA,
+      tokenB,
+      parseUnits(amountA, 18),
+      parseUnits(amountB, 18),
+    ],
+  });
 }
 
-/* --------- Remove Liquidity ---------- */
-
+// REMOVE LIQUIDITY
 export async function removeLiquidity(
   tokenA: string,
   tokenB: string,
-  liquidity: string,
-  decimalsLP: number
+  lpAmount: string
 ) {
-  const signer = await getSigner();
-  const router = getRouter(signer);
+  const walletClient = getWalletClient();
+  if (!walletClient) throw new Error("Wallet non connesso");
 
-  const liquidityWei = parseUnits(liquidity, decimalsLP);
-
-  const tx = await router.removeLiquidity(
-    tokenA,
-    tokenB,
-    liquidityWei
-  );
-
-  return await tx.wait();
+  return walletClient.writeContract({
+    address: ROUTER,
+    abi: ROUTER_ABI,
+    functionName: "removeLiquidity",
+    args: [tokenA, tokenB, parseUnits(lpAmount, 18)],
+  });
 }
 
-/* --------- Get Price ---------- */
-
-export async function getPrice(tokenA: string, tokenB: string) {
-  const provider = await getProvider();
-  const router = getRouter(provider);
-  const price = await router.getPrice(tokenA, tokenB);
-  // qui decidi tu come interpretare i decimali del prezzo
-  return price as bigint;
-}
-
-/* --------- Lettura bilanci per Portfolio ---------- */
-
-export async function getTokenBalance(
-  token: string,
-  account: string,
-  decimals: number
+// SWAP
+export async function swapTokens(
+  tokenIn: string,
+  tokenOut: string,
+  amountIn: string
 ) {
-  const provider = await getProvider();
-  const erc20 = getERC20(token, provider);
-  const bal = await erc20.balanceOf(account);
-  return Number(formatUnits(bal, decimals));
+  const walletClient = getWalletClient();
+  if (!walletClient) throw new Error("Wallet non connesso");
+
+  return walletClient.writeContract({
+    address: ROUTER,
+    abi: ROUTER_ABI,
+    functionName: "swapExactTokensForTokens",
+    args: [tokenIn, tokenOut, parseUnits(amountIn, 18)],
+  });
 }
+
