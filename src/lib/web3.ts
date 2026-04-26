@@ -7,34 +7,7 @@ import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 
 // ------------------------------------------------------
-<<<<<<< HEAD
-// GENERIC WRITE WRAPPER
-// ------------------------------------------------------
-async function writeTx(
-  functionName: "addLiquidity" | "removeLiquidity" | "swapExactTokensForTokens",
-  args: any[]
-) {
-  const walletClient = await getWalletClient(wagmiConfig);
-
-  if (!walletClient) {
-    throw new Error("Wallet non connesso");
-  }
-
-  return walletClient.writeContract({
-    chain: bsc,
-    account: walletClient.account, // REQUIRED BY WAGMI v2
-    address: CONTRACTS.router.address as `0x${string}`,
-    abi: CONTRACTS.router.abi,
-    functionName,
-    args: args as any,
-  });
-}
-
-// ------------------------------------------------------
-// ADD LIQUIDITY
-=======
 // WRITE: ADD LIQUIDITY
->>>>>>> ae87680 (DEX fully fixed)
 // ------------------------------------------------------
 export async function addLiquidity(
   tokenA: `0x${string}`,
