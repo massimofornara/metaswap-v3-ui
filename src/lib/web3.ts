@@ -7,6 +7,7 @@ import { bsc } from "wagmi/chains";
 import { CONTRACTS } from "@/lib/contracts";
 
 // ------------------------------------------------------
+<<<<<<< HEAD
 // GENERIC WRITE WRAPPER
 // ------------------------------------------------------
 async function writeTx(
@@ -31,6 +32,9 @@ async function writeTx(
 
 // ------------------------------------------------------
 // ADD LIQUIDITY
+=======
+// WRITE: ADD LIQUIDITY
+>>>>>>> ae87680 (DEX fully fixed)
 // ------------------------------------------------------
 export async function addLiquidity(
   tokenA: `0x${string}`,
@@ -38,37 +42,63 @@ export async function addLiquidity(
   amountA: bigint,
   amountB: bigint
 ) {
-  return writeTx("addLiquidity", [tokenA, tokenB, amountA, amountB]);
+  const walletClient = await getWalletClient(wagmiConfig);
+  if (!walletClient) throw new Error("Wallet non connesso");
+
+  return walletClient.writeContract({
+    chain: bsc,
+    account: walletClient.account,
+    address: CONTRACTS.router.address as `0x${string}`,
+    abi: CONTRACTS.router.abi,
+    functionName: "addLiquidity",
+    args: [tokenA, tokenB, amountA, amountB],
+  });
 }
 
 // ------------------------------------------------------
-// REMOVE LIQUIDITY
+// WRITE: REMOVE LIQUIDITY
 // ------------------------------------------------------
 export async function removeLiquidity(
   tokenA: `0x${string}`,
   tokenB: `0x${string}`,
   liquidity: bigint
 ) {
-  return writeTx("removeLiquidity", [tokenA, tokenB, liquidity]);
+  const walletClient = await getWalletClient(wagmiConfig);
+  if (!walletClient) throw new Error("Wallet non connesso");
+
+  return walletClient.writeContract({
+    chain: bsc,
+    account: walletClient.account,
+    address: CONTRACTS.router.address as `0x${string}`,
+    abi: CONTRACTS.router.abi,
+    functionName: "removeLiquidity",
+    args: [tokenA, tokenB, liquidity],
+  });
 }
 
 // ------------------------------------------------------
-// SWAP TOKENS
+// WRITE: SWAP TOKENS
 // ------------------------------------------------------
 export async function swapTokens(
   tokenIn: `0x${string}`,
   tokenOut: `0x${string}`,
   amountIn: bigint
 ) {
-  return writeTx("swapExactTokensForTokens", [
-    tokenIn,
-    tokenOut,
-    amountIn,
-  ]);
+  const walletClient = await getWalletClient(wagmiConfig);
+  if (!walletClient) throw new Error("Wallet non connesso");
+
+  return walletClient.writeContract({
+    chain: bsc,
+    account: walletClient.account,
+    address: CONTRACTS.router.address as `0x${string}`,
+    abi: CONTRACTS.router.abi,
+    functionName: "swapExactTokensForTokens",
+    args: [tokenIn, tokenOut, amountIn],
+  });
 }
 
 // ------------------------------------------------------
-// GET PRICE
+// READ: GET PRICE
 // ------------------------------------------------------
 export async function getPrice(
   tokenA: `0x${string}`,

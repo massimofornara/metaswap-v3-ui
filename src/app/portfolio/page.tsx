@@ -1,5 +1,10 @@
 "use client";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = false;
+
 import PortfolioCard from "@/components/portfolio/PortfolioCard";
 
 export default function PortfolioPage() {
@@ -10,4 +15,3 @@ export default function PortfolioPage() {
     </main>
   );
 }
-

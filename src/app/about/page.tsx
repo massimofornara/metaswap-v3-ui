@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
-import { Populations } from "@/components/Populations";
+"use client";
 
-export const metadata: Metadata = {
-  title: "About",
-  description: "Informazioni sul progetto MetaSwap V3",
-};
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = false;
+
+import { Populations } from "@/components/Populations";
 
 export default function AboutPage() {
   return (

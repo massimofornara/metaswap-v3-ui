@@ -1,4 +1,5 @@
 // src/hooks/useLPBalance.ts
+"use client";
 import { useEffect, useState } from "react";
 import { readContract } from "@wagmi/core";
 import { wagmiConfig } from "@/wagmiConfig";
