@@ -1,7 +1,5 @@
 "use client";
 
-export const runtime = "edge";
-
 import QueryProvider from "@/providers/query";
 import WalletProvider from "@/providers/wallet";
 

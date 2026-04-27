@@ -1,10 +1,5 @@
 "use client";
 
-export const runtime = "edge";
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = false;
-
 import SwapCard from "@/components/swap/SwapCard";
 import AddLiquidityCard from "@/components/liquidity/AddLiquidityCard";
 import RemoveLiquidityCard from "@/components/liquidity/RemoveLiquidityCard";
