@@ -8,7 +8,7 @@ import { wagmiConfig } from "@/wagmiConfig";
 
 const queryClient = new QueryClient();
 
-export function Web3Provider({ children }: { children: ReactNode }) {
+export default function WalletProvider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
